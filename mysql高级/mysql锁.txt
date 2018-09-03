@@ -1,0 +1,10 @@
+查看锁等待的状态： show status like ‘%table%’  下面的Table_locks_waited
+共享读锁  lock table employees read 
+
+
+独占写锁  其它客户端是无法访问的，若被占用，共享读锁是可以的
+lock table employees as a read；别名方式访问。
+加写锁  lock  tables  employees write。
+unlock tables  解锁。
+lock tables employees  read，salaries write；这时当前客户端访问是可以的，另一个客户端访问salaries会等待。
+

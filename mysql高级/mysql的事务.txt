@@ -1,0 +1,27 @@
+为什么要使用事务这个技术呢？多程序，多线程，对同一个表可能有很多人在用，为保持数据的一致性，所以提出了事务的概念。举个例子：
+A给B转钱，A的账户1000元，B的账户就要+1000元，这两个update语句必须作为一个整体来执行，同时提交给数据库执行，不然A扣钱了，B没有加钱这种情况很难处理。
+
+show engines\G	;查看数据库引擎； 事务 transaction  myisam不支持事务
+
+show variables like '%storage_engine%';查看存储引擎；
+
+
+转账案例：
+
+set autocommit = 0；取消自动提交
+start transaction;启动事务
+update account set accmoney = accmoney -1000 where aid =1;
+
+在另一个客户端查询：结果没有变.
+
+再在原客户端update account set accmoney  =accmoney+1000 where aid=2； 自己客户端看已增加1000，而另一个客户端看不增加，应为没有提交；
+commit 提交后数据都会改变。
+
+若设置：
+set commit = 1; commit提交后数据才会真正提交到数据库。
+账号自动提交；
+
+事物是保持数据一致性
+
+
+

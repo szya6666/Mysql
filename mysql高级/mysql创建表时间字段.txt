@@ -1,0 +1,19 @@
+1.timestamp类型
+
+create table manager(
+
+id int not null primary key,
+
+mdate timestamp not null default current_timestamp
+
+);
+
+2.datetime类型
+
+create table manager(
+
+id int not null primary key,
+
+mdate datetime
+
+);

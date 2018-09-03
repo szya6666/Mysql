@@ -1,0 +1,261 @@
+一、当mysql出现中文编码的问题：
+服务端修改编码为utf8：将mysql安装的的配置文件my.ini改为utf8编码。  my.ini文件 客户端修改为gbk  若无法插入中文
+然后查看：show variables like 'char%'
+客户端修改: set names 'utf8' 修改客户端连接，及表的结果的输出的编码。
+修改已创建表的编码 ：alter table 表名  character set utf8
+修改数据库列的编码格式设定:  alter table 表名 changes first_name first_name varchar(20) character set utf8 not null
+
+解决拥有数据的多张表的编码问题：1、导出表结构。2、将数据库表的数据导出,3、删除原有的数据库表，重新以新的编码格式创建数据库
+如何导出表结构到一个本地文件：mysqldump -uroot -p --default-character-set=utf8 -d companys >C:/cc.sql  注意不能加分号会报错。--表示可选项。
+
+mysqldump -uroot -p --quick --no-create-info --extend-insert --default-character-set=utf8 companys > C:/data.sql (到处数据到data.sql)
+
+删除原有数据库：drop database 
+再创建数据库：
+creat database companys default charset utf8 
+再导入表结构：mysql -uroot -p companys < C:/cc.sql
+再导入表的数据：先在sql文件里面加上set namas 'utf8'(不加的话导入可能产生数据乱码问题)
+mysql -uroot -p companys < C:/data.sql
+
+
+
+
+
+二、会话变量与全局变量：客户端与服务端链接的时候，
+查看与设置	show session variables
+		show  session variables like 'auto%'  设置：set autocommit = 'off' set @@session.autocommit='off'
+		show global variables like 'auto%'
+		set global autocommit = 'on'
+		show global variables like 'auto%'
+		set @@global.autocommit = 'off' 精确找到变量值：select @@session.autocommit  
+show session variables like 'auto%'  以auto开始的模糊查询。
+set autocommit = 'off' 设置autocommit为off
+
+三、存储过程：
+	1、一个存储过程是一个可编程的函数，他在数据库中创建并保存。
+	2、存储过程增强了sql语言的功能和灵活性
+	3、存储过程允许的标准组件是编程
+	4、存储过哦成能实现较快速的执行速度
+	5、存储过程能减少网络流量，客户机调用该存储过程时，网络中传送的只是改调用语句，从而大大的增加了网络流量并降低了网络负载。
+	6、存储过程可被作为一种安全机制来充分利用。系统管理员通过执行某一存储过程的权限进行限制，能够实现对相应数据的访问权限的限制。
+创建存储过程：   1、选中数据库
+	        2、改变分隔符，不让以分号结尾  delimiter  $$
+		3、create procedure p_hello()
+		4、begin
+		select 'hello';   {sql  语句的集合}
+		select 'world';
+		end
+		$$;
+
+		delimiter ; 将分隔符改变回来
+定义一个变量的语法：declare 变量名 数据类型 default 默认值
+		存储过程：
+			delimiter $$;
+			create procedure p_vartest()
+			begin 
+			declare a varchar(20) default 'abc';
+			select a;
+			end
+			$$;
+调用存储过程：先将分隔符变成分号：delimiter ；
+			call p_varchar;
+再创建存储过程： delimiter $$;
+		 create procedure v_test2()
+		begin 
+		declare inta int;申明变量
+		set inta=10;  变量赋值
+		select inta; 查询变量
+		end
+		$$;	
+存储过程参数：in 输入参数
+		表示该参数的值必须在调用存储过程之前指定，在存储过程中修改的值不能返回
+	     out:输出参数
+		该参数可在存储过程内部改变，并可以返回
+	     inout:输入输出参数
+		该值可以在调用时制定，并可以修改和返回。
+	     delimiter $$;
+		create procedure v_test3(in p_int int)
+		begin
+		select p_int;
+		set p_int = p_int +1;
+		select p_int;
+		end
+		$$;
+	delimiter ；
+	set @p_int = 3
+	call v_test3(@p_int)
+	输出  3和4
+	而@p_int的值不会变
+	因为存储过程使用的@p_int的变量值实际上是@p_int的一个复制。
+		
+out参数的使用：
+	delimiter $$;
+	create procedure v_test_out(out out_test int)
+	begin
+	select out_test
+	set out_test = 13
+	select out_test
+	end 
+	$$;
+set @out_test = 15
+调用:call v_test_out(@out_test);
+打印出的值为 null  13  而@out_test的值也随之改变为13
+
+存储过程里面的if  else 语句
+if  then 条件  elseif then 条件 else 条件  end if；end
+create procedure test4(in age int)
+    -> begin
+    -> if age>60 then
+    -> select '老年人';
+    -> elseif age>18 && age<60 then
+    -> select '成年人';
+    -> else
+    -> select '未成年人';
+    -> end if;
+    -> end
+    -> $$;
+存储过程里面的case语句：对salaries表按照姓名进行员工薪资的修改
+		create procedure p_add(in p_name varchar(10))
+		begin
+		declare adds int;
+		case p_name
+		when 'szy' then
+		set adds=1000;
+		when 'mq' then
+		set adds=2000;
+		when 'wqm'then
+		set adds=1500;
+		else
+		set adds=10;
+		end case;
+		update salaries set money=adds where name=p_name;
+		end;
+		$$;
+另一个应用：将employees 表中的gender列中显示的M和F，改为显示 ‘性别’列的‘男’和‘女’
+select emp_no,first_name,last_name,(case gender when 'M'then '男'else '女' end) as '性别' from employees;
+
+ifnull语句：select ifnull(表达式1,表达式2)
+	    如果表达式1为null，显示的是表达式2
+	    如果过表达式1不为null，那么显示的是表达式1的内容
+eg:
+	
+mysql> select ifnull(name,'无名') from salaries;
++---------------------+
+| ifnull(name,'无名')     |
++---------------------+
+| 无名                    |
+| mq                  |
+| wqm                 |
++---------------------+
+3 rows in set, 1 warning (0.00 sec)
+
+存储过程中的while语句：
+		while 条件 do
+		    内容
+		end while；
+	while 语句里面条件返回的是True or false 当返回True的时候循环执行内容
+eg:从1+2+3+4...+100  求值
+create procedure add4()
+begin
+declare i int default 1;
+declare result int default 0;
+while i<=100 do
+set result=result+i;
+set i=i+1;
+end while;
+select result;
+end;
+$$;
+
+小知识点 ：select into 赋值语句 
+eg：
+
+验证：
+mysql> create procedure test2()
+    -> begin
+    -> declare i int;
+    -> select max(id) into i from salaries;
+    -> select i;
+    -> end;
+    -> $$;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> call test2;
+    -> $$;
++------+
+| i    |
++------+
+|    3 |
++------+
+1 row in set (0.00 sec)
+
+存储过程来一次性添加100条表信息：
+mysql> select * from salaries;
+    -> $$;
++----+------+-------+
+| id | name | money |
++----+------+-------+
+|  1 | NULL |  1000 |
+|  2 | mq   |  2000 |
+|  3 | wqm  |  1500 |
++----+------+-------+
+mysql> create procedure add1()
+    -> begin
+    -> declare i int default 1;
+    -> declare p_id int;
+    -> while i<=100 do
+    -> select max(id) into p_id from salaries;
+    -> set p_id=p_id+1;
+    -> insert into salaries(id,name,money) value(p_id,'szy',10000000);
+    -> set i=i+1;
+    -> end while;
+    -> end;
+    -> $$;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> call add1$$;
+Query OK, 1 row affected (0.10 sec)
+
+create procedure change4()
+begin
+declare i int default 1;
+declare j int default 1;
+declare max_id int;
+select max(id) into max_id from salaries;
+while i<=max_id do
+update salaries set money=50000 where id = i;
+set i=i+1;
+end while;
+
+
+
+储存过程的repeat语句：
+	repeat 
+		内容
+	until 条件   //退出循环的条件
+	end repeat
+
+存储过程的loop语句：
+	loop名字：loop
+	内容
+	if 条件 then
+	leave loop名字；
+	end if；
+	end loop
+
+修改偶数行的money值为2500
+create procedure change6()
+begin
+declare min_id int;
+declare max_id int;
+select min(id) into min_id from salaries;
+select max(id) into max_id from salaries;
+repeat
+if min_id % 2 =0 then
+update salaries set money=2500 where id=min_id;
+end if;
+set min_id = min_id+1;
+until min_id > max_id
+end repeat;
+end;
+$$;

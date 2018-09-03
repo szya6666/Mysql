@@ -1,0 +1,53 @@
+触发器是一种特殊的存储过程，它在插入，删除或修改特定表中的数据时触发执行，它比数据库本身标准的功能更精细和更复杂的数据控制能力。
+它具有这样的特性：
+
+监控地点：一般就是表名
+
+监视事件：update/delete/insert
+
+触发时间：after/before
+
+触发事件：update /delete/insert
+
+1、对于insert 而言 ，就插入的行用ew来表示，行中的每一列的值用new.列名来表示。
+2、对于delete而言，原本有一行，后来被删除想引用被删除的这一行，用old来表示，old.列名可以引用被删除的行的值。
+3、对于update而言，被修改的行，修改前的数据，用old.。列名来表示，old.列名引用被修改行之前行中的值；
+修改后的数据，用new来表示，new.列名引用被修改后行中的值。
+
+eg：插入的触发器：
+	delimiter $$;
+	create trigger tr_insertEmp after insert
+	on employees for each row
+	begin
+		insert salaries values(new.emp_no,0,'2015-5-1','2015-5-30');
+	end
+	$$;
+
+eg:删除操作：
+	create trigger tr_deleteEmp before delete
+	on employees for each row
+	begin 
+	delete from salaries where emp_no = old.emp_no
+	end;
+	$$;
+eg:更新操作：
+	delimiter $$;
+	create trigger tr_updateEmp after update
+	on employees for each row
+	begin
+	update salaries set form_date = new.hire_date where emp_no =old.emp_no
+	end;
+	$$;
+触发器的管理：
+show triggers;
+2、Mysql中有一个information_schema.Triggers表，存储所有库中的所有触发器，desc information_schema.Triggers,可以看到触发器的结构。
+3、查看触发器的名字：
+select * from information_schema.Triggers where Trigger_name = '触发器的名字\G';
+4、删除触发器：
+drop Trigger[schema_name.]trigger_name
+
+desc information_schema.triggers;
+select *from information_schema.triggers where trigger_name = '...';
+drop trigger 触发器名
+ 
+

@@ -1,0 +1,26 @@
+慢查询的日志slow_query_log  用来记录比较慢的sql语句，通过查询的日志来查找那条sql语句比较慢，对mysql比较慢的sql可以进行优化。
+
+1、登录mysql
+2、show variables like 'slow_query'
+show variables like 'long_query_time'
+	若状态是 show_query_log = off
+则开启慢查询：
+	set global slow_query_log = "ON";
+设置慢查询存放的位置
+set global slow_query_log_file='/var/lib/mysql/slow.log';
+设置查询超过一秒就记录
+set global long_query_time = 1;
+上面的配置只是临时生效。
+
+在mysqld配置文件中加入/etc/my.cnf
+[mysqld]
+slow_query_log = ON
+slow_query_log_file = /var/lib/mysql/testslow.log
+long_query_time = 1
+
+修改后重启mysql：
+systemctl restart mysqld
+mysql - r root -p
+使用下面的命令验证：
+show variables like '%slow_query%';
+mysql永久开启了慢查询日志功能。

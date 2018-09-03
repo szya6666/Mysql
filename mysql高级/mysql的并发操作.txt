@@ -1,0 +1,24 @@
+并发插入（Concurrent Inserts）
+Myisam表的读和写是串行的，但是就总体而言，myisam表也支持查询和插入的并发进行。
+
+Myisam存储引擎有一个系统变量concurrent_insert,专门用以控制其并发插入的行为，其值分别是0，1，2.
+当concurrent_insert设置为0时，不允许并发插入。
+2、当concurrent_insert设置为1时，如果MyISAM 表中没有空洞(即表中没有被删除的行)，myisam允许在进程读表的同时，另一个进程从尾部插入记录，这也是Mysql的默认设置。
+3、当concurrent_insert设置为2时，无论myisam表中有没有空洞都允许在表尾并发插入
+
+
+show variables like 'concurrent_insert';
+set global concurrent_insert = 2;
+lock table employees read local;被读锁定  无法插入，而此时在另一个客户端可以插入，本客户端无法查询，不能更新操作。
+解锁后：unlock tables；
+可以插入，读
+
+set global concurrent_insert = 1;
+lock table employees read local; #由于以前有在表中数据有删除操作，此时在另一个客户端无法插入数据，只有当这个表解锁后才可以插入数据。
+
+一个进程请求某个myisam表的读锁，同时另一个进程也请求同一个表的写锁？mysql如何处理呢？
+ 答案：写进程先获得锁，即使读请求先到锁等待队列，写请求后到，写锁也会插到读锁队列。mysql认为写请求比读请求更重要，myisam他不合适于有大量更新操作和查询操作的原因，因为，大量的更新操作会造成查询操作很难获得读锁，从而可能永远阻塞。
+
+解决方法：
+1、执行set low_priority_updates =1;使该连接发出的更新请求优先级降低。
+其中insert，delete也可以通过此方法指定。

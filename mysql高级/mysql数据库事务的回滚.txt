@@ -1,0 +1,40 @@
+start transaction 启动事务相当于  set autocommit = 0
+若select * from account；
+rollback
+回到之前的状态。
+
+commit and chain；提交之后开启新的事务
+rollback and release 表示
+
+
+设置还原点：
+set autocommit = 0
+insert into 
+
+save point s1
+
+insert into
+
+save point s2
+
+insert
+
+save  point s3
+
+rollback to savepoint s2 
+select * from account 可以看到s2之前的数据已经插入
+commit之后  其它客户端也能查询
+
+若
+rollback to savepoint s3  同理
+
+innodb 锁：
+
+先加锁：
+select table account write;  其他客户端查询处于等待；
+
+insert into account values(7,'f',1000);
+
+rollback;     其他客户端读仍然等待
+
+只有在start  transaction    在innodb中相当于解锁  。才可以访问 

@@ -1,0 +1,93 @@
+1、什么是视图？
+试图是由查询结果形成的一张虚拟表。
+
+2、什么时候要用到视图
+如果某个查询结果出现的非常频繁，也就是，要经常拿这个查询结果来做子查询。
+
+3、使用视图的好处？
+1）简化查询的语句
+案例：比如求每个人的平均工资。
+2）可以进行权限控制
+	把表的权限封闭，但是开放相应的试图权限，视图里只开放部分数据列。
+3）大数据表分表的时候，比如某张表的数据有100万条，那么可以将这张表分成四个视图。
+
+
+
+create view v_salaries   #如果已经存在，create or replace view v_salaries
+as
+select employees.emp_no,first_name.last_name,avg_name,ifull(avg(salary),0) from employees left join salaries on employees.emp_no = salaries.emp_no group by employees.emp_no;
+
+select * from v_salary where emp_no=1001
+
+
+create view v_getSalaryCount
+as
+select employees.emp_no,first_name.last_name,avg_name,Count(avg(salary),0) as salaryNum from employees left join salaries on employees.emp_no = salaries.emp_no group by employees.emp_no;
+
+
+将100万条数据分担在四个视图中：
+create or repalce view v_employees1
+as
+select * from employee where emp_no % 4=0;
+
+create or replace view v_employees2
+as
+select * from employee where emp_no % 4=1;
+
+create or replace view v_employees3
+as
+select * from employee where emp_no % 4=2;
+
+create or replace view v_employees4
+as
+select * from employee where emp_no % 4=3;
+
+1、视图的存放位置？
+视图存放在infomation_schema数据库下的views表里。
+2、视图的算法？
+存在两种执行的算法：
+1、Merge：合并的执行方式，每当执行的时候，先将我们视图的sql语句与外部查询视图的sql语句，混合在一起，最终执行；
+2、Template：临时表的模式，每当查询的时候，将视图所使用的select语句生成一个结果的临时表，再在当前的临时表内进行查询。
+指的是一个视图是在什么时候执行，一句那些方式执行；
+对于MERGE，会将引用视图的语句的文本与视图定义合并起来，使得视图定义的某一部分取代语句的对应部分。
+
+对于TEMPLABLE,视图的结果将被置于临时表中，然后使用他执行语句。
+
+对于UNDEFINED,MYSQL将选择所要使用的算法。如果，它倾向与MERGE而不是TEMPTABLE，这是应为MERGE通常更有效，而且如果使用了临时表，视图是不可更新。
+
+
+
+查看视图的定义：
+show tables status from companys数据库名 like ‘v_salaries‘这是视图名\G
+查看权限：
+select Drop_priv FROM mysql.user WHERE USER='root';
+
+删除视图：
+drop View if exists worker_view1;
+
+删多个：drop view if exists department_view1,department_view2;
+
+create view v_salaries
+as
+select emp_no,salaries;
+更新：
+update v_salaries set salary = 1500 where emp_no = 1001;
+
+关于视图的数据更新的问题？
+某些视图是可更新的。也就是说，可以在诸如update。delete或insert 等语句中使用他们，以更新基表的内容。对于可更新的视图，在视图中的行和基表中的行之间必须具有一对一的关系。还有一些特定的其他结构，这类结构会使得视图不可更新。具体来讲，如果视图中包含下术结构中的任何一种，那么他就是不可更新：
+
+1.聚合函数（sum(),min(),max(),count()等）。
+2、DISTINCT
+3、DROUP BY
+4、HAVING
+5、union或union all
+6、位于选择列表的子查询
+7、join
+8、from子句中的不可更新视图
+9、where 之句中的表。
+10、引用文字值（在该情况下，没有要更新的基本表。）
+11、ALGORITHM = TEMPTABLE(使用临时表总会使视图成为不可更新的)
+
+关于with check option的理解及应用？
+with check option 可以这么解释：通过视图进行的修改，必须也能通过该视图看到的修改后的结果。
+with check option:更新视图的数据，那么必须先满足视图的条件，满足之后才能更新到基表中。

@@ -1,0 +1,14 @@
+1、查看数据库下的存储过过程
+show procedure status where db='数据库名';
+
+2、查看当前数据库下面的存储过程的列表
+select specific_name from mysql.proc;
+
+3、查看存储过程的内容；
+select specific_name,body from mysql.proc;或者show create proce	duce 存储过程的名字。
+4、删除存储过程名
+drop procedure if exists 存储过程名
+5、修改alter procedure p_demo1 no sql
+       alter procedure p_demo comment
+
+   

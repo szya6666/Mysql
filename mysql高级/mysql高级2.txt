@@ -1,0 +1,88 @@
+存储过程：
+	条件的定义和处理可以用来定义在处理过程中遇到问题时相应的处理步骤。
+declare continue handler for sqlstate '错误代码值' set 变量=变量值
+
+create procedure t3()
+begin
+declare i int default 1;
+while i<100 do
+insert into employee(id,ename)values(i,'mq');
+set i=i+1;
+end while;
+end;
+$;
+
+create procedure t4()
+begin
+declare continue handler for sqlstate '23000' set @i=1;    //没有这条语句时报错 23000 加上这条语句时不报错，有问题的语句异常被捕获，继续执行下一条sql语句
+insert into salaries(id,name,money)values(1,'szy',9999);
+insert into employee(id,ename)values(100,'szy');
+end;
+$;
+
+查看存储过程：show procedure status where db='数据库名'；
+2、查看当前数据库下面的存储过程的列表
+select specific_name from mysql.proc;  //查看存储过程列表
+
+mysql> select specific_name from mysql.proc;
+    -> $;
++---------------+
+| specific_name |
++---------------+
+| test          |
+| out_test      |
+| test4         |
+| p_add         |
+| test2         |
+| add1          |
+| change3       |
+| change6       |
+| t2            |
+| t3            |
+| t4            |
+| t5            |
++---------------+
+12 rows in set (0.00 sec)
+
+mysql> select specific_name,body from mysql.proc where specific_name = 't5'$;
++---------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| specific_name | body                                                                                                                                                                        |
++---------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| t5            | begin
+declare continue handler for sqlstate '23000' set @i=1;
+insert into salaries(id,name,money)values(1,'szy',9999);
+insert into employee(id,ename)values(100,'szy');
+end |
++---------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+drop procedure if exists 存储过程名；
+
+
+ show create procedure t5$;  查看
+
++-----------+----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------+----------------------+--------------------+
+| Procedure | sql_mode                                                       | Create Procedure                                                                                                                                                                                                               | character_set_client | collation_connection | Database Collation |
++-----------+----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------+----------------------+--------------------+
+| t5        | STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION | CREATE DEFINER=`root`@`localhost` PROCEDURE `t5`()
+begin
+declare continue handler for sqlstate '23000' set @i=1;
+insert into salaries(id,name,money)values(1,'szy',9999);
+insert into employee(id,ename)values(100,'szy');
+end | utf8                 | utf8_general_ci      | utf8_general_ci    |
++-----------+----------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------+----------------------+--------------------+
+1 row in set (0.00 sec)
+
+
+
+
+
+create procedure t4()
+begin
+declare i int default 1;
+while i<21 do
+insert into app_students(id,name,age)values(i,concat('安倍',i),i);
+set i=i+1;
+end while;
+end;
+$;

@@ -1,0 +1,24 @@
+修改表字段的类型
+
+> alter table 表名 modify 字段名 类型（长度）；经常用 
+
+### 添加表字段  
+
+> alter table 表名  add column  字段名  类型(长度)；
+
+### 删除字段  
+
+> alter table 表名 drop column 字段名；
+
+###　表字段改名
+
+> alter table 表名 change 原来的字段名  字段新名字  类型（长度);  
+
+###　修改表名
+alter table 旧表名 rename 新表名;
+
+### 修改排序顺序  
+> alter table 表 名 modify 字段名 类型(长度)  【not null】first ；
+
+
+

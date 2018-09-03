@@ -1,0 +1,53 @@
+1、concat函数  concat('asd',null,'wu') 若有个元素包含null那么这个函数的返回结果是null。
+2、首先查看是否已经开启了创建函数的功能？
+show variables like '%fun%';
+3、如果变量的值为off 那么需要开启
+set global log_bin_trust_function_creators = 1;
+4、创建函数的语法：
+	create function 函数名（变量1，变量2.。。。。）
+	return 数据类型
+begin 
+	.....执行的程序代码
+	return 数据；
+end；
+
+创建函数 计算两个数的和：
+create function add_fun(a int,b int)
+returns int                          #注意这里是returns  要加s
+begin
+return a+b;
+end;
+$$;
+#执行这个函数：select add_function(3,4);
+
+#查看创建的函数：
+show create function add_func;
+
+删除这个函数：
+drop function if exists fun_add
+
+小案例：
+	delimiter $$;
+	create function fun_login(unmae varchar(20),upwd varchar(20))
+	returns varchar(20)
+	begin
+	declare rowResult int default 0;
+	select count(*) into rewResult from userinfo where username = uname;
+	if rewResult = 0 then
+		return 'username not exists';
+	end if;
+	select count(*) into rowResult from userinfo where username = uname and userpasswd = upwd;
+	if rewResult = 0 then
+		return 'userpwd input error';
+	else
+		return 'login OK';
+	end if;
+	end;
+	$$;
+
+
+查看数据库中的函数：
+select * from mysql.func;  类似与查看存储过程的select * from mysql.proc；
+2、删除函数
+drop function if exists 函数名；
+

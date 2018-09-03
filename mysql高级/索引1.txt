@@ -1,0 +1,36 @@
+查看索引：show index from employees;  或者show  keys  from index
+select * from employees where emp_no = 23456; 没有索引时间  0.4 创建索引后0.002秒
+
+在关系数据库中，索引是一种与表有关的数据库结构。它可以是对应于表的SQL语句执行得更快。索引的作用相当于图书的目录，可以根据目录中的页码快速找到所需的内容，在关系数据库中，索引的作用相当于图书的目录，可以根据目录总的页码快速的找到所需的内容。在关系数据库中，索引是一种与表有关的数据库结构，它可以使对应与表的SQL语句执行的更快。索引的作用相当于图书的目录，可以根据目录中的页码快速找到所需的内容。
+
+
+主键索引：alter table  add PRIMARY KEY (索引针对的列)
+
+唯一性索引所在的列可以为null值。
+唯一的索引所在的列不能为空字符串
+创建的语法
+create unique index  索引名称  on 表名（列名）
+create unique index uq_depname on departments(dep_name);创建了唯一性约束。即唯一索引。
+explain select * from departments where dept_name = ''\G
+
+crate index index norindex on employees(first_name.last_name);创建普通索引
+
+explain select first_name,last_name from employees\G;
+通过explain 分析低效的sql语句
+
+全文索引：mysql支持全文索引和搜索功能。全文索引类型是FULLTEXT。仅可用于myisam表。
+eg: create table articles(
+	id int unsigned auto_increment not null primarykey
+	title varchar(200),
+	body text,
+	fulltext (title,body)  
+)engine = myisam default charset = utf8;
+
+插入数据后：
+分析语句：explain  select * from articles where match(title,body) against ('database') 比like语句效率高的多
+查看 select * from articles where match(title,body) against ('database') from 表名  匹配全文索引两个字段中包含database字符 即搜索包含database字符的信息。
+查找出的内容是匹配度
+
+删除索引：  alter table employees drop index norindex.
+查看索引：  show index from employee
+
