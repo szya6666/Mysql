@@ -1,0 +1,107 @@
+一、Nginx依赖库：
+	安装gcc g++的依赖库
+ubantu 16.4
+apt-get install build-essential
+apt-get install libtool
+
+如果是centos平台：
+安装make：yum -y install gcc automake autoconf libtool make
+安装g++:
+yum install gcc gcc-c++
+
+
+安装pcre依赖库(http://www.pvre.org/)
+sudo apt-get update
+sudo apt-get install libpcre3 libpcre3-dev
+
+安装zlib依赖库
+apt-get install zliblg-dev
+
+安装ssl依赖库
+apt-get install openssl
+
+安装nginx：
+下载最新版本：
+wget http://nginx.org/download/nginx-1.11.3.tar.gz
+解压：
+tar -zxvf nginx-1.11.3.tar.gz
+#进入解压目录
+cd nginx-1.11.3
+
+
+
+
+配置：
+./configure --prefix=/usr/local/nginx 
+
+shell>> ./configure \  
+
+    --user=nginx \      --group=nginx \      --prefix=/opt/nginx \      --sbin-path=/usr/sbin/nginx \      --conf-path=/etc/nginx/nginx.conf \      --error-log-path=/var/log/nginx/error.log \      --http-log-path=/var/log/nginx/access.log \      --http-client-body-temp-path=/tmp/nginx/client_body \      --http-proxy-temp-path=/tmp/nginx/proxy \      --http-fastcgi-temp-path=/tmp/nginx/fastcgi \      --pid-path=/var/run/nginx.pid \      --lock-path=/var/lock/subsys/nginx \      --with-http_stub_status_module
+
+这里解释一下:
+# --user            是指启用程序所属用户
+# --group           是指启动程序所属组
+# --prefix          是指nginx安装目录（不是源代码目录）
+# --sbin-path       是指nginx命令位置
+# --conf-path       是指配置文件路径
+# --error-log-path  是错误日志路径
+# --http-log-path   是访问日志
+
+
+
+
+#编辑nginx：
+make
+注意：这里可能会报错，提示“pcre.h No such file or directory”,具体详见：http://stackoverflow.com/questions/22555561/error-building-fatal-error-pcre-h-no-such-file-or-directory
+需要安装 libpcre3-dev,命令为：sudo apt-get install libpcre3-dev
+
+#安装nginx：
+sudo make install
+#启动nginx：
+sudo /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+注意：-c 指定配置文件的路径，不加的话，nginx会自动加载默认路径的配置文件，可以通过 -h查看帮助命令。
+#查看nginx进程：
+ps -ef|grep nginx
+
+Nginx常用命令
+启动Nginx
+/usr/local/nginx/sbin/nginx
+ 
+./sbin/nginx　
+
+停止Nginx：
+./sbin/nginx -s stop
+./sbin/nginx -s quit
+-s都是采用向 Nginx 发送信号的方式
+
+Nginx重新加载配置：
+./sbin/nginx -s reload
+指定配置文件：
+./sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+-c表示configuration，指定配置文件
+
+查看 Nginx 版本
+
+有两种可以查看 Nginx 的版本信息的参数。第一种如下：
+./sbin/nginx -v
+ 
+nginx: nginx version: nginx/1.0.0
+
+poechant@ubuntu:/usr/local/nginx$ ./sbin/nginx -V
+
+检查配置文件是否正确
+poechant@ubuntu:/usr/local/nginx$ ./sbin/nginx -t
+
+
+
+poerchant@ubuntu:/usr/local/nginx$ sudo ./sbin/nginx -t
+nginx: the configuration file /usr/local/nginx/conf/nginx.conf syntax is ok
+nginx: configuration file /usr/local/nginx/conf/nginx.conf test is successful
+如果显示如上，则表示配置文件正确。否则，会有相关提示。
+
+
+显示帮助信息：
+	
+poechant@ubuntu:/user/local/nginx$ ./sbin/nginx -h
+或者：
+poechant@ubuntu:/user/local/nginx$ ./sbin/nginx -?
