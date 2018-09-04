@@ -1,0 +1,194 @@
+Numpy库常用操作：
+NumPy数组的维数称为秩（rank），一维数组的秩为1，二维数组的秩为2，以此类推。在NumPy中，每一个线性的数组称为是一个轴（axes），秩其实是描述轴的数量。比如说，二维数组相当于是一个一维数组，而这个一维数组中每个元素又是一个一维数组。所以这个一维数组就是NumPy中的轴（axes），而轴的数量——秩，就是数组的维数。
+
+1、创建矩阵
+Numpy库中的矩阵模块为ndarray对象，有很多属性：T，data, dtype,flags,flat,imag,real,size,
+itemsize,nbytes,ndim,shape,strides,ctypes,base等等。
+
+创建一维narray对象：
+a=np.array([1,2,3,4,5])
+二维数组：
+a = np.array([1,2,3,4,5],[1,2,3,4,5])
+
+
+通过函数创建矩阵：
+a = np.arange(10) 默认从0到10 步长为1
+a2 = np.arrange(5,20,2)从5开始到20 步长为2
+
+生成等差数列：
+linspace()  和matlab的linespace类似，用于创建指定数量等间隔的序列
+a = np.linespace(0,10,5)  #生成首位是0，末位是10，含5个数的等差数列
+
+生成等比数列：
+logspace用于生成等差数列，而logspace用于生成等比数列。
+eg: 生成首位是10^0 ,末位是10^2,含五个数的等比数列
+a = np.logspace(0,2,5)
+
+
+ones创建全1矩阵：
+zeros创建全0矩阵：
+eye创建单位矩阵：
+创建空矩阵：
+a = np.ones((3,4))  #创建3*4的全1矩阵
+a = np.zeros((3,4)) #创建全0矩阵
+a = np.eye(3)  	    #创建全3阶单位矩阵
+a = np.empty((3,4)) #创建3*4的空矩阵
+
+
+fromstring
+fromstring()方法可以将字符串转化成ndarray对象，需要将字符串数字化时有用，可以获得字符串的ascii码序列
+eg:
+	a="abcdef"
+	b=np.fromstring(a,dtype=np.int8) #一个字符串为8位，所以指定dtype为np.int8
+	print(b)
+
+
+fromfunction()函数的使用：
+先定义一个函数：
+	def f(x,y):
+		return 2*x+y
+	使用fromfunction函数
+	np.fromfunction(f,(5,4))
+	打印出矩阵：
+	[[0,1,2,3],
+	 [2,3,4,5],
+	 [4,5,6,7],
+	 [6,7,8,9],
+	 [8,9,10,11]]
+
+对矩阵的操作：
+numpy中的ndarry对象重载l许多运算符，使用这些运算符可以完成矩阵间对应元素的运算。
++ - * / % **
+np.sin(a)  对矩阵a取正弦sin(x)
+np.cos(a)  
+np.tan(a)
+np.arcsin(a)
+np.arccos(a)
+np.arctan(a)
+np.exp(a)        对矩阵中每个元素取指数函数，e^x
+np.sqrt(a)       对矩阵中每个元素开根号x
+
+
+矩阵的乘法（点乘）
+乘法结合律： (AB)C=A(BC)． [2] 
+乘法左分配律：(A+B)C=AC+BC [2] 
+乘法右分配律：C(A+B)=CA+CB [2] 
+对数乘的结合性k(AB）=(kA)B=A(kB）．
+转置 (AB)T=BTAT．
+矩阵乘法一般不满足交换律 [3]  。
+矩阵的乘法必须满足矩阵乘法的条件，即第一个矩阵的列数等于第二个矩阵的行数。
+矩阵乘法的函数为dot
+
+a1 = np.array([[1,2,3],[4,5,6]])  #a1为2*3的矩阵
+a2 = np.array([[1,2],[3,4],[5,6]])  #a2为3*2的矩阵
+print(a1.shape[1]==a2.shap[0])    #True,满足矩阵乘法条件
+print(a1.dot(a2))    #a1.dot(a2) 相当于matlab中的a1*a2
+而python中的a1*a2相当于matlab中的a1.*a2
+结果
+[[22,28] [49,64]]
+
+
+矩阵的转置（transpose或T）
+基本性质编辑
+(A±B)T=AT±BT
+(A×B)T= BT×AT
+(AT)T=A
+(KA)T=KAT
+
+矩阵的逆：
+矩阵的逆
+求逆首先明白行列式：
+	
+结果为 a1·b2·c3+b1·c2·a3+c1·a2·b3-a3·b2·c1-b3·c2·a1-c3·a2·b1(注意对角线就容易记住了）
+这里一共是六项相加减，整理下可以这么记：
+a1(b2·c3-b3·c2) - a2(b1·c3-b3·c1) + a3(b1·c2-b2·c1)=
+a1(b2·c3-b3·c2) - b1(a2·c3 - a3·c2) + c1(a2·b3 - a3·b2)
+此时可以记住为：
+a1*(a1的余子式)-a2*(a2的余子式)+a3*(a3的余子式)=
+a1*(a1的余子式)-b1*(b1的余子式)+c1*(c1的余子式)
+某个数的余子式是指删去那个数所在的行和列后剩下的行列式。   
+行列式的每一项要求：不同行不同列的数字相乘
+如选了a1则与其相乘的数只能在2，3行2，3列中找，（即在 b2 b3 c2c3中找）
+而a1(b2·c3-b3·c2) - a2(b1c3-b3·c1) + a3(b1·c2-b2·c1)是用了行列式展开运算：即行列式等于它第一行的每一个数乘以它的余子式，或等于第一列的每一个数乘以它的余子式，然后按照 + - + - + -......的规律给每一项添加符号之后再做求和计算。
+
+矩阵求逆：用高斯-若尔当肖元法   AA-1次方 = E
+
+求矩阵的逆：a = np.eye(3) #3阶单位矩阵
+	    print(lg.iva(a)) #单位矩阵的逆为他本身
+最大值最小值：array = np.array([[1,2,3],[4,5,6]])
+print(array,max())  #结果为6
+print（array.max()）  #结果为1
+print(array.max(axis = 0))  #x轴最大值，0，1代表行列
+
+平均值：每个数的和除以数的个数。
+获得矩阵中元素的平均值可以通过函数mean()  或average().同样的，可以获得整个矩阵，行或列的平均值
+array = np.array([[1,2,3],[4,5,6]])
+print(array.mean()) #结果为3.5
+print(np.average(array)) #结果为3.5
+print（array.mean(axis = 0)） #行方向上的平均值，同样，0，1代表维度
+
+
+方差：方差函数为var（），方差函数var（）相当于函数mean(abs(x-x.mean())**2),其中x为矩阵
+array = np.array([[1,2,3],[4,5,6]])
+print(array.var())  #结果为2.916666666667
+还可以指定维度0，1，分别代表行列
+print(array.varr(axis=0))
+a = np.array([[1,3,5],[2,4,6],[3,4,5]])
+   print(a.mean())        #求平均数
+   print(a.mean(axis=0))  #求x轴的平均值，即每一列的平均值
+   print(a.mean(axis=1))  #求y轴的平均值，即每一行的平均值
+   print(a.var())	  #求方差
+   print(a.var(axis=0))	  #求x维的方差，即每一列的方差
+   print(a.var(axis=1))   #求每一行的方差
+
+标准差的函数std()
+std()相当于sqrt(mean(abs(x-x.mean())**2)),或相当于sqrt(x.var())
+array = np.array([[1,2,3],[4,5,6]])
+print(array.std(axis=0)) 指定维度0，1代表行列
+
+中位数or中值
+中值指的是将序列按大小顺序排列后，排在中间的那个值，如果有偶数个数，则是排在中间两个数的平均值。
+中值的函数是median()，调用方法为numpy.median(x,[axis])，axis可指定轴方向，默认axis=None，对所有数去中值
+print(np.median(array))
+指定维度：
+print（np.median(array,axis=0)）
+
+求和 sum()  可以对行列整个矩阵求值
+print(array.sum(axis=0))
+
+累计和累加：
+某位置累计和指的是该位置之前(包括该位置)所有元素的和。
+矩阵求累积和的函数是cumsum()，可以对行，列，或整个矩阵求累积和。
+print（a.cumsum())   #对整个矩阵求累积和
+print(a.cumsum(axis = 0))  #对行方向求累积和
+
+矩阵的截取：
+矩阵的截取和list相同，可以通过[] （方括号）来截取
+a=np.array([[1,2,3,4,5,6],[6,7,8,9,10]])
+print(a[0:1])  #截取第一行，返回[[1,2,3,4,5]]
+print(a[1,2:5]) #截取第二行，第三，四，五列，返回[8,9,10]
+print(a[1,:])#截取第二行
+
+按条件截取：
+a=np.array([1,2,3,4,5],[6,7,8,9,10])
+b = a[a>6]  #截取矩阵a中大于6的元素，返回的是一维数组
+print(b)
+
+a = np.array([[1,2,3,4,5],[6,7,8,9,10]])
+print(a)
+a[a>6]=0    #将大于6的直接清零  
+[[1,2,3,4],[6,0,0,0,0]]
+
+clip截取
+clip（矩阵，min,max） #返回值：所有小于min的值都等于min，所有大于max的值都等于max
+print(array.clip(2,4))
+
+矩阵的合并：矩阵的合并可以通过numpy中的hsatck和vstack()方法实现
+参数传递时要以列表list或元祖tuple的形式传入
+print(np.hstack([a1,a2]))
+纵向和合并：
+print(np.vstack([a1,a2]))
+
+矩阵的合并也可以通过concatenate方法
+np.concatenate((a1,a2),axis = 0)等价于  np.vstack((a1,a2))
+np.concatenate((a1,a2),axis = 1)等价于  np.hstack((a1,a2))
